@@ -9,8 +9,6 @@ import VotingWrapper from "./VotingWrapper";
 import PropTypes from "prop-types";
 import { withStyles } from "@material-ui/core/styles";
 import votingContractDefinition from "./contracts/Voting.json";
-import votingTokenContractDefinition from "./contracts/VotingToken.json";
-import tokenFactoryContractDefinition from "./contracts/TokenFactory.json";
 
 const styles = theme => ({
   root: {
@@ -26,9 +24,7 @@ class App extends Component {
     super(props);
     this.state = {
       enigmaSetup: null,
-      voting: null,
-      votingToken: null,
-      tokenFactory: null
+      voting: null
     };
   }
 
@@ -39,15 +35,7 @@ class App extends Component {
       enigmaSetup.web3,
       votingContractDefinition
     );
-    const votingToken = await getContractInstance(
-      enigmaSetup.web3,
-      votingTokenContractDefinition
-    );
-    const tokenFactory = await getContractInstance(
-      enigmaSetup.web3,
-      tokenFactoryContractDefinition
-    );
-    this.setState({ voting, votingToken, tokenFactory, enigmaSetup });
+    this.setState({ voting, enigmaSetup });
   };
 
   render() {
@@ -75,9 +63,7 @@ class App extends Component {
           <Container>
             <VotingWrapper
               enigmaSetup={this.state.enigmaSetup}
-              tokenFactory={this.state.tokenFactory}
               voting={this.state.voting}
-              votingToken={this.state.votingToken}
             />
           </Container>
         </div>

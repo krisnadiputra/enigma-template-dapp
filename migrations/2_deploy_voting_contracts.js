@@ -1,22 +1,9 @@
 const http = require("http");
-const VotingToken = artifacts.require("VotingToken.sol");
-const TokenFactory = artifacts.require("TokenFactory.sol");
 const Voting = artifacts.require("Voting.sol");
 
 module.exports = function(deployer) {
     return (
         deployer
-            .then(() => {
-                return deployer.deploy(VotingToken);
-            })
-            .then(() => {
-                return deployer.deploy(TokenFactory, VotingToken.address);
-            })
-            .then(() => {
-                return VotingToken.deployed().then(instance =>
-                    instance.transferOwnership(TokenFactory.address)
-                );
-            })
             .then(() => {
                 return new Promise((resolve, reject) => {
                     /* 
@@ -50,7 +37,6 @@ module.exports = function(deployer) {
                 console.log("Got Enigma Contract address: " + enigmaAddress);
                 return deployer.deploy(
                     Voting,
-                    VotingToken.address,
                     enigmaAddress
                 );
             })

@@ -5,9 +5,7 @@ import Table from "@material-ui/core/Table";
 import TableBody from "@material-ui/core/TableBody";
 import TableCell from "@material-ui/core/TableCell";
 import TableHead from "@material-ui/core/TableHead";
-import TablePagination from "@material-ui/core/TablePagination";
 import TableRow from "@material-ui/core/TableRow";
-import TableSortLabel from "@material-ui/core/TableSortLabel";
 import CheckCircleIcon from "@material-ui/icons/CheckCircle";
 import AutorenewIcon from "@material-ui/icons/Autorenew";
 import CancelIcon from "@material-ui/icons/Cancel";
@@ -15,15 +13,13 @@ import ThumbUpIcon from "@material-ui/icons/ThumbUp";
 import ThumbDownIcon from "@material-ui/icons/ThumbDown";
 import DoneIcon from "@material-ui/icons/Done";
 import CloseIcon from "@material-ui/icons/Close";
-import Input from "@material-ui/core/Input";
-import TextField from "@material-ui/core/TextField";
 import Tooltip from "@material-ui/core/Tooltip";
 import AddPoll from "./AddPoll";
 import Timer from "./Timer";
 import Notifier, { openSnackbar } from "./Notifier";
 const engUtils = require("./lib/enigma-utils");
 // Specify signatures of callable/callback functions (with no spaces!)
-const CALLABLE = "countVotes(uint,uint[],uint[])";
+const CALLABLE = "countVotes(uint,uint[])";
 const CALLBACK = "updatePollStatus(uint,uint,uint)";
 const ENG_FEE = 1;
 const GAS = "1000000";
@@ -90,13 +86,11 @@ class Polls extends Component {
         }
 
         let status = poll[1].toNumber();
-        let quorumPercentage = poll[2].toNumber();
-        let description = poll[5];
-        let expirationTime = poll[6].toNumber();
+        let description = poll[4];
+        let expirationTime = poll[5].toNumber();
         polls.push({
           id: i,
           status,
-          quorumPercentage,
           description,
           expirationTime,
           userHasVoted,
@@ -121,9 +115,8 @@ class Polls extends Component {
   /*
   Create a new poll
   */
-  async createPoll(quorumPercentage, description, votingPeriod) {
+  async createPoll(description, votingPeriod) {
     await this.props.voting.createPoll(
-      quorumPercentage,
       description,
       votingPeriod,
       { from: this.props.enigmaSetup.accounts[this.props.curAccount], gas: GAS }
@@ -139,13 +132,11 @@ class Polls extends Component {
         gas: GAS
       });
       let status = poll[1].toNumber();
-      let quorumPercentage = poll[2].toNumber();
-      let description = poll[5];
-      let expirationTime = poll[6].toNumber();
+      let description = poll[4];
+      let expirationTime = poll[5].toNumber();
       polls.push({
         id: pollCount - 1,
         status,
-        quorumPercentage,
         description,
         expirationTime,
         userHasVoted: false,
@@ -175,12 +166,6 @@ class Polls extends Component {
       await this.props.voting.castVote(
         pollID,
         encryptedVote,
-        parseInt(
-          this.props.enigmaSetup.web3.utils.toWei(
-            this.state.polls[pollID].stake,
-            "ether"
-          )
-        ),
         {
           from: this.props.enigmaSetup.accounts[this.props.curAccount],
           gas: GAS
@@ -215,12 +200,10 @@ class Polls extends Component {
       from: pollCreator,
       gas: GAS
     });
-    // Initialize empty encryptedVotes and weights arrays
+    // Initialize empty encryptedVotes
     let encryptedVotes = [];
-    let weights = [];
     if (voters.length === 0) {
       encryptedVotes.push(getEncryptedValue(0));
-      weights.push(0);
     }
     // Loop through all the voters
     for (let i = 0; i < voters.length; i++) {
@@ -234,17 +217,8 @@ class Polls extends Component {
         }
       );
       // Add encrypted vote to encryptedVotes array
-      encryptedVotes.push(pollInfoForVoter[0]);
-      let weight = this.props.enigmaSetup.web3.utils.toBN(
-        this.props.enigmaSetup.web3.utils.fromWei(
-          String(pollInfoForVoter[1].toNumber()),
-          "Ether"
-        )
-      );
-      // Add weight to weights array
-      weights.push(weight);
+      encryptedVotes.push(pollInfoForVoter);
     }
-
     let blockNumber = await this.props.enigmaSetup.web3.eth.getBlockNumber();
     /*
     Take special note of the arguments passed in here (blockNumber, dappContractAddress, 
@@ -255,7 +229,7 @@ class Polls extends Component {
       blockNumber,
       this.props.voting.address,
       CALLABLE,
-      [pollID, encryptedVotes, weights],
+      [pollID, encryptedVotes],
       CALLBACK,
       ENG_FEE,
       []
@@ -307,9 +281,7 @@ class Polls extends Component {
             <TableHead>
               <TableRow>
                 <TableCell numeric>Vote</TableCell>
-                <TableCell>Stake</TableCell>
                 <TableCell>Description</TableCell>
-                <TableCell numeric>Quorum %</TableCell>
                 <TableCell numeric>Time Remaining (s)</TableCell>
                 <TableCell>Result</TableCell>
               </TableRow>
@@ -348,18 +320,7 @@ class Polls extends Component {
                         </Tooltip>
                       )}
                     </TableCell>
-                    <TableCell>
-                      <TextField
-                        id="stake-{n.id}"
-                        type="number"
-                        default={0}
-                        onChange={this.handleChangeVoteStake.bind(this, n.id)}
-                        autoComplete="off"
-                        className={classes.textField}
-                      />
-                    </TableCell>
                     <TableCell>{n.description}</TableCell>
-                    <TableCell numeric>{n.quorumPercentage}</TableCell>
                     <TableCell numeric>
                       {n.status === 0 ? (
                         <Timer

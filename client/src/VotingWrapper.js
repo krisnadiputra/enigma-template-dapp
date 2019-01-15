@@ -1,12 +1,10 @@
 import React, { Component } from "react";
-import Token from "./Token";
 import Polls from "./Polls";
 import Grid from "@material-ui/core/Grid";
 import Paper from "@material-ui/core/Paper";
 import Select from "@material-ui/core/Select";
 import MenuItem from "@material-ui/core/MenuItem";
 import List from "@material-ui/core/List";
-import ListItem from "@material-ui/core/ListItem";
 import PropTypes from "prop-types";
 import { withStyles } from "@material-ui/core/styles";
 
@@ -23,44 +21,11 @@ class VotingWrapper extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			curAccount: 0,
-			tokenBalance: 0,
-			stakedTokenBalance: 0
+			curAccount: 0
 		};
 		this.changeTokenBalance = this.changeTokenBalance.bind(this);
 		this.changeStakedToken = this.changeStakedToken.bind(this);
 		this.accountChange = this.accountChange.bind(this);
-	}
-
-	async componentDidMount() {
-		let tokenBalance = await this.props.votingToken.balanceOf.call(
-			this.props.enigmaSetup.accounts[this.state.curAccount],
-			{
-				from: this.props.enigmaSetup.accounts[this.props.curAccount],
-				gas: "1000000"
-			}
-		);
-		let stakedTokenBalance = await this.props.voting.getTokenStake.call(
-			this.props.enigmaSetup.accounts[this.state.curAccount],
-			{
-				from: this.props.enigmaSetup.accounts[this.props.curAccount],
-				gas: "1000000"
-			}
-		);
-		this.setState({
-			tokenBalance: parseInt(
-				this.props.enigmaSetup.web3.utils.fromWei(
-					tokenBalance.toString(),
-					"ether"
-				)
-			),
-			stakedTokenBalance: parseInt(
-				this.props.enigmaSetup.web3.utils.fromWei(
-					stakedTokenBalance.toString(),
-					"ether"
-				)
-			)
-		});
 	}
 
 	/*
@@ -68,35 +33,7 @@ class VotingWrapper extends Component {
   	*/
 	async accountChange(event) {
 		let curAccount = event.target.value;
-		let tokenBalance = await this.props.votingToken.balanceOf.call(
-			this.props.enigmaSetup.accounts[curAccount],
-			{
-				from: this.props.enigmaSetup.accounts[curAccount],
-				gas: "1000000"
-			}
-		);
-		let stakedTokenBalance = await this.props.voting.getTokenStake.call(
-			this.props.enigmaSetup.accounts[curAccount],
-			{
-				from: this.props.enigmaSetup.accounts[curAccount],
-				gas: "1000000"
-			}
-		);
-		this.setState({
-			tokenBalance: parseInt(
-				this.props.enigmaSetup.web3.utils.fromWei(
-					tokenBalance.toString(),
-					"ether"
-				)
-			),
-			stakedTokenBalance: parseInt(
-				this.props.enigmaSetup.web3.utils.fromWei(
-					stakedTokenBalance.toString(),
-					"ether"
-				)
-			),
-			curAccount
-		});
+		this.setState({ curAccount });
 	}
 
 	/*
@@ -147,42 +84,13 @@ class VotingWrapper extends Component {
 										</Select>
 									</label>
 								</Grid>
-								<Grid item xs={4}>
-									<label>
-										Current Token Balance:{" "}
-										{this.state.tokenBalance}
-									</label>
-								</Grid>
-								<Grid item xs={4}>
-									<label>
-										Number of Staked Tokens:{" "}
-										{this.state.stakedTokenBalance}
-									</label>
-								</Grid>
 							</List>
 						</div>
 					</Paper>
 				</Grid>
 				<br />
 				<Grid container className={classes.root} spacing={16}>
-					<Grid item xs={2}>
-						<Paper className={classes.paper}>
-							<Token
-								enigmaSetup={this.props.enigmaSetup}
-								tokenFactory={this.props.tokenFactory}
-								voting={this.props.voting}
-								votingToken={this.props.votingToken}
-								updateToken={this.changeTokenBalance}
-								updateStake={this.changeStakedToken}
-								tokenBalance={this.state.tokenBalance}
-								stakedTokenBalance={
-									this.state.stakedTokenBalance
-								}
-								curAccount={this.state.curAccount}
-							/>
-						</Paper>
-					</Grid>
-					<Grid item xs={10}>
+					<Grid item xs={12}>
 						<Paper className={classes.paper}>
 							<Polls
 								enigmaSetup={this.props.enigmaSetup}

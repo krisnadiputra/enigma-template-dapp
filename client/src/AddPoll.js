@@ -8,8 +8,6 @@ import DialogContent from "@material-ui/core/DialogContent";
 import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import TextField from "@material-ui/core/TextField";
-import MenuItem from "@material-ui/core/MenuItem";
-import Select from "@material-ui/core/Select";
 
 const styles = theme => ({
   button: {
@@ -27,13 +25,9 @@ class AddPoll extends Component {
     super(props);
     this.state = {
       open: false,
-      quorumPercentage: null,
       description: null,
       votingPeriod: null
     };
-    this.handleChangeQuorumPercentage = this.handleChangeQuorumPercentage.bind(
-      this
-    );
     this.handleChangeDescription = this.handleChangeDescription.bind(this);
     this.handleChangeVotingPeriod = this.handleChangeVotingPeriod.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
@@ -46,11 +40,6 @@ class AddPoll extends Component {
   handleClose = () => {
     this.setState({ open: false });
   };
-
-  // onChange listener to update state with user-input address
-  handleChangeQuorumPercentage(event) {
-    this.setState({ quorumPercentage: event.target.value });
-  }
 
   // onChange listener to update state with user-input net worth
   handleChangeDescription(event) {
@@ -68,13 +57,11 @@ class AddPoll extends Component {
     // Trigger MillionairesProblemWrapper addMillionaire callback
     {
       this.props.onCreatePoll(
-        parseFloat(this.state.quorumPercentage),
         this.state.description,
         parseInt(this.state.votingPeriod)
       );
       this.setState({
         open: false,
-        quorumPercentage: null,
         description: null,
         votingPeriod: null
       });
@@ -103,14 +90,6 @@ class AddPoll extends Component {
               Create a new poll with the following details:
             </DialogContentText>
             <form className={classes.root} onSubmit={this.handleSubmit}>
-              <TextField
-                id="quorumPercentage"
-                label="Quorum Percentage"
-                type="number"
-                onChange={this.handleChangeQuorumPercentage}
-                autoComplete="off"
-                className={classes.textField}
-              />
               <TextField
                 id="description"
                 label="Description"

@@ -34,7 +34,7 @@ class Header extends Component {
 							color="inherit"
 							className={classes.flex}
 						>
-							Enigma Voting DApp
+							TEE Enabled Basic Voting DApp
 						</Typography>
 					</Toolbar>
 				</AppBar>
